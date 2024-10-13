@@ -8,8 +8,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from cruds.eventsCRUD import get_all_events_list, get_event_by_id, delete_athlete_by_id, create_event, \
     get_sorted_events_list
-from schemas.schemas import EventDelete, EventCreate, EventModel, EventsFields, SortType, SortTypeForm
+from schemas.events_schemas import EventDelete, EventCreate, EventModel, EventsFields
 from database import get_db
+from schemas.schemas import SortType, SortTypeForm
 
 router = APIRouter()
 
@@ -49,13 +50,8 @@ def athlete_profile(event_id: int, db: Session = Depends(get_db)) -> list[AnyCom
     ]
 
 @router.get("/api/events", response_model=FastUI, response_model_exclude_none=True)
-def events_table(db: Session = Depends(get_db), field: EventsFields | None = EventsFields.event_name, reverse: SortType = SortType.false) -> list[AnyComponent]:
+def events_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
     data = get_all_events_list(db)
-    if field:
-        if reverse == reverse.false:
-            data = get_sorted_events_list(db, field)
-        else:
-            data = get_sorted_events_list(db, field, True)
     return [
         c.Page(
             components=[

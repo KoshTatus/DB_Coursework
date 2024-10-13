@@ -2,7 +2,7 @@ from fastapi import Query, HTTPException
 from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
 from orm.orm import EventsOrm
-from schemas.schemas import EventModel, EventCreate, EventsFields
+from schemas.events_schemas import EventModel, EventCreate, EventsFields
 
 SKIP = 0
 LIMIT = 20

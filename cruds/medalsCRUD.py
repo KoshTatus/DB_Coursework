@@ -2,7 +2,7 @@ from fastapi import Query, HTTPException
 from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
 from orm.orm import MedalsOrm
-from schemas.schemas import MedalCreate, MedalModel
+from schemas.medals_schemas import MedalCreate, MedalModel
 
 SKIP = 0
 LIMIT = 20

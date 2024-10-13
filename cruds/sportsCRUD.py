@@ -2,7 +2,7 @@ from fastapi import Query, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from orm.orm import SportsOrm
-from schemas.schemas import SportModel, SportCreate, SportDelete
+from schemas.sports_schemas import SportModel, SportCreate, SportDelete
 
 SKIP = 0
 LIMIT = 20

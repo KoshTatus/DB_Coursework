@@ -2,7 +2,7 @@ import datetime
 import enum
 from typing import Annotated
 
-from sqlalchemy import String, ForeignKey, CheckConstraint, Date
+from sqlalchemy import String, ForeignKey, CheckConstraint, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from database import Base
@@ -20,13 +20,18 @@ class AthletesOrm(Base):
     date_of_birth: Mapped[datetime.date] = mapped_column(CheckConstraint("date_of_birth < current_date"))
     gender: Mapped[GenderType] = mapped_column(default=GenderType.M)
     country_id: Mapped[int] = mapped_column(ForeignKey("countries.id", ondelete="CASCADE"))
-
+    __table_args__ = (
+        Index('first_last_name_index', 'first_name', 'last_name'),
+    )
 
 class CountriesOrm(Base):
     __tablename__ = "countries"
     id: Mapped[int_primary_key]
     country_name: Mapped[string_255] = mapped_column(unique=True)
     continent: Mapped[string_255]
+    __table_args__ = (
+        Index('country_name_index', 'country_name'),
+    )
 
 
 class MedalsOrm(Base):
@@ -59,3 +64,6 @@ class SportsOrm(Base):
     id: Mapped[int_primary_key]
     sport_name: Mapped[string_255] = mapped_column(unique=True)
     category: Mapped[string_255]
+    __table_args__ = (
+        Index('sport_name_index', 'sport_name'),
+    )

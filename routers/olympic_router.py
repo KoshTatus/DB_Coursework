@@ -7,7 +7,7 @@ from fastui import components as c, AnyComponent, FastUI
 from sqlalchemy.orm import Session
 
 from cruds.olympicsCRUD import get_all_olympics_list, create_olympic, get_olympic_by_id, delete_olympic_by_id
-from schemas.schemas import SportCreate, SportDelete, OlympicModel, OlympicCreate, OlympicDelete
+from schemas.olympics_schemas import OlympicModel, OlympicCreate, OlympicDelete
 from database import get_db
 
 router = APIRouter()

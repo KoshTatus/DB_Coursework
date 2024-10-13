@@ -3,34 +3,64 @@ from fastapi import HTTPException
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 from orm.orm import AthletesOrm, CountriesOrm
-from schemas.schemas import AthleteModel, AthleteCreate, AthletesFields, SortType
+from schemas.athletes_schemas import AthleteModel, AthleteCreate, AthletesFields, AthletesSearchFields, \
+    AthletesFieldsDict
+from schemas.schemas import SortType, GenderType
 
 SKIP = 0
 LIMIT = 20
 
 
-def get_sorted_athletes_list(db: Session, field: AthletesFields = AthletesFields.last_name,
-                             reverse: SortType = SortType.false, skip: int = SKIP, limit: int = LIMIT):
-    if reverse.name == "true":
-        query = select(AthletesOrm).order_by(desc(field.name))
+def get_athletes_list(
+        db: Session,
+        sort_field: str,
+        reverse: str,
+        search_field: str,
+        search: str | None
+):
+    query = select(AthletesOrm)
+
+    if search:
+        match search_field:
+            case "Имя":
+                if reverse == "По возрастанию":
+                    query = select(AthletesOrm).filter(AthletesOrm.first_name.like(f"{search}%")).order_by(AthletesFieldsDict[sort_field])
+                else:
+                    query = select(AthletesOrm).filter(AthletesOrm.first_name.like(f"{search}%")).order_by(desc(AthletesFieldsDict[sort_field]))
+            case "Фамилия":
+                if reverse == "По возрастанию":
+                    query = select(AthletesOrm).filter(AthletesOrm.last_name.like(f"{search}%")).order_by(
+                        AthletesFieldsDict[sort_field])
+                else:
+                    query = select(AthletesOrm).filter(AthletesOrm.last_name.like(f"{search}%")).order_by(
+                        desc(AthletesFieldsDict[sort_field]))
+            case "Пол":
+                gndr = GenderType.M if search == "M" else GenderType.F
+                if reverse == "По возрастанию":
+                    query = select(AthletesOrm).filter(AthletesOrm.gender == gndr).order_by(
+                        AthletesFieldsDict[sort_field])
+                else:
+                    query = select(AthletesOrm).filter(AthletesOrm.gender == gndr).order_by(
+                        desc(AthletesFieldsDict[sort_field]))
     else:
-        query = select(AthletesOrm).order_by(field.name)
+        if reverse == "По возрастанию":
+            query = select(AthletesOrm).order_by(AthletesFieldsDict[sort_field])
+        else:
+            query = select(AthletesOrm).order_by(desc(AthletesFieldsDict[sort_field]))
 
     result = [AthleteModel.model_validate(row, from_attributes=True) for row in db.execute(query).scalars().all()]
 
     return result
 
 
-def get_all_athletes(db: Session, skip: int = SKIP, limit: int = LIMIT):
-    # res = db.query(AthletesOrm).offset(skip).limit(limit).all()
-    query = (select(AthletesOrm).limit(LIMIT))
+def get_all_athletes(db: Session):
+    query = select(AthletesOrm)
     res = db.execute(query)
     ans = [AthleteModel.model_validate(row, from_attributes=True) for row in res.scalars().all()]
-    return db.query(AthletesOrm).offset(skip).limit(limit).all()
+    return ans
 
 
-def get_all_athletes_list(db: Session, skip: int = SKIP, limit: int = LIMIT):
-    # res = db.query(AthletesOrm).offset(skip).limit(limit).all()
+def get_all_athletes_list(db: Session):
     query = (select(AthletesOrm).limit(LIMIT))
     res = db.execute(query)
     ans = [AthleteModel.model_validate(row, from_attributes=True) for row in res.scalars().all()]

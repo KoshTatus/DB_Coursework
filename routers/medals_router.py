@@ -7,18 +7,15 @@ from fastui import components as c, AnyComponent, FastUI
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from cruds.medalsCRUD import get_all_medals_list, get_medal_by_id, delete_medal_by_id, create_medal
-from schemas.schemas import MedalCreate, MedalDelete, MedalModel, SortType, SortTypeForm
+from schemas.medals_schemas import MedalCreate, MedalDelete, MedalModel
 from database import get_db
+from schemas.schemas import SortTypeForm, SortType
 
 router = APIRouter()
 
 @router.get("/api/medals", response_model=FastUI, response_model_exclude_none=True)
-def medals_table(db: Session = Depends(get_db), reverse: SortType = SortType.false) -> list[AnyComponent]:
+def medals_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
     data = get_all_medals_list(db)
-    if reverse == reverse.false:
-        data = get_all_medals_list(db)
-    else:
-        data = get_all_medals_list(db, True)
     return [
         c.Page(
             components=[

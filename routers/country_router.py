@@ -8,9 +8,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from cruds.countriesCRUD import get_all_countries_list, get_country_by_id, delete_country_by_id, create_country, \
     get_sorted_countries_list
-from routers.athlete_router import SortTypeForm
-from schemas.schemas import CountryDelete, CountryCreate, CountryModel, CountriesFields, SortType
+from schemas.countries_schemas import CountryDelete, CountryCreate, CountryModel, CountriesFields
 from database import get_db
+from schemas.schemas import SortTypeForm, SortType
 
 router = APIRouter()
 
@@ -18,13 +18,9 @@ class SortForm(BaseModel):
     field: CountriesFields
 
 @router.get("/api/countries", response_model=FastUI, response_model_exclude_none=True)
-def countries_table(db: Session = Depends(get_db), field: CountriesFields | None = CountriesFields.country_name, reverse: SortType = SortType.false) -> list[AnyComponent]:
+def countries_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
     data = get_all_countries_list(db)
-    if field:
-        if reverse == reverse.false:
-            data = get_sorted_countries_list(db, field)
-        else:
-            data = get_sorted_countries_list(db, field, True)
+
     return [
         c.Page(
             components=[

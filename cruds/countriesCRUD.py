@@ -2,7 +2,7 @@ from fastapi import Query, HTTPException
 from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
 from orm.orm import CountriesOrm
-from schemas.schemas import CountryModel, CountryCreate, CountryUpdate, CountriesFields
+from schemas.countries_schemas import CountryModel, CountryCreate, CountryUpdate, CountriesFields
 
 SKIP = 0
 LIMIT = 20

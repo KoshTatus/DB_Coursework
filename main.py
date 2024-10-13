@@ -13,6 +13,7 @@ app = FastAPI(
     title="Olympics",
 )
 
+create_tables_orm()
 
 app.include_router(athlete_router)
 app.include_router(country_router)
