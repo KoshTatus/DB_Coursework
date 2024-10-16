@@ -6,7 +6,8 @@ from sqlalchemy import String, ForeignKey, CheckConstraint, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from database import Base
-from schemas.schemas import GenderType, MedalType, SeasonType
+from schemas.medals_schemas import MedalType
+from schemas.schemas import GenderType, SeasonType
 
 int_primary_key = Annotated[int, mapped_column(primary_key=True)]
 string_255 = Annotated[str, 255]
