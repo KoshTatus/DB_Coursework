@@ -1,4 +1,3 @@
-import statics as static
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c

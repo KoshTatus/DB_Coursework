@@ -7,17 +7,24 @@ from fastui.forms import fastui_form
 from fastui import components as c, AnyComponent, FastUI
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from cruds.eventsCRUD import get_events_list, get_all_events, get_event_by_id, \
-    create_event, update_event_by_id, delete_event_by_id
+from cruds.eventsCRUD import get_events_list
+from orm.events_orm import EventsOrm
 from schemas.events_schemas import EventModel, EventCreate, SortFormEvent, EventDelete
 from database import get_db
+from cruds.generalCRUD import (
+    get_all_objects,
+    get_object_by_id,
+    delete_object_by_id,
+    update_object_by_id,
+    create_object
+)
 
 router = APIRouter()
 
 
 @router.post("/api/event")
 def add_event(form: Annotated[EventCreate, fastui_form(EventCreate)], db: Session = Depends(get_db)):
-    create_event(db, form)
+    create_object(db, form, EventsOrm)
     return [c.FireEvent(event=GoToEvent(url='/events'))]
 
 @router.get("/api/event/add", response_model=FastUI, response_model_exclude_none=True)
@@ -66,7 +73,7 @@ def sort_events(
 
 @router.get("/api/events", response_model=FastUI, response_model_exclude_none=True)
 def events_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
-    data = get_all_events(db)
+    data = get_all_objects(db, EventModel, EventsOrm)
 
     return [
         c.Page(
@@ -101,7 +108,7 @@ def events_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
 
 @router.get("/api/event/{id}/", response_model=FastUI, response_model_exclude_none=True)
 def event_profile(id: int, db: Session = Depends(get_db)) -> list[AnyComponent]:
-    event = get_event_by_id(db, id)
+    event = get_object_by_id(db, id, EventModel, EventsOrm)
     return [
         c.Page(
             components=[
@@ -125,18 +132,18 @@ def event_profile(id: int, db: Session = Depends(get_db)) -> list[AnyComponent]:
 
 
 @router.post("/api/events/update/{id}")
-def update_athlete(
+def update_event(
         id: int,
         form: Annotated[EventCreate, fastui_form(EventCreate)],
         db: Session = Depends(get_db)
 ):
-    update_event_by_id(db, id, form)
+    update_object_by_id(db, id, form, EventsOrm)
     return [c.FireEvent(event=GoToEvent(url=f"/event/{id}/"))]
 
 
 @router.get("/api/event/{id}/update", response_model=FastUI, response_model_exclude_none=True)
 def update_event_page(id: int, db: Session = Depends(get_db)):
-    res = get_event_by_id(db, id)
+    res = get_object_by_id(db, id, EventModel, EventsOrm)
 
     class EventUpdate(BaseModel):
         event_name: str = Field(title="Название", default=res.event_name)
@@ -159,7 +166,7 @@ def update_event_page(id: int, db: Session = Depends(get_db)):
 
 @router.post("/api/events/delete")
 def delete_event(event: Annotated[EventDelete, fastui_form(EventDelete)], db: Session = Depends(get_db)):
-    delete_event_by_id(db, event.id)
+    delete_object_by_id(db, event.id, EventsOrm)
     return [c.FireEvent(event=GoToEvent(url="/events"))]
 
 

@@ -1,43 +1,41 @@
-from fastapi import Query, HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
-from orm.orm import OlympicsOrm
-from schemas.olympics_schemas import OlympicModel, OlympicCreate, OlympicDelete
+from orm.olympics_orm import OlympicsOrm
+from schemas.olympics_schemas import OlympicsFieldsDict, OlympicModel
 
-SKIP = 0
-LIMIT = 20
 
-def get_all_olympics(db: Session, skip: int = SKIP, limit: int = LIMIT):
-    return db.query(OlympicsOrm).offset(skip).limit(limit).all()
+def get_olympics_list(
+        db: Session,
+        sort_field: str,
+        reverse: str,
+        search_field: str | None,
+        search: str | None
+):
+    query = select(OlympicsOrm)
 
-def create_olympic(db: Session, olympic: OlympicCreate):
-    db_olympic = OlympicsOrm(**olympic.model_dump())
-    db.add(db_olympic)
-    db.commit()
-    db.refresh(db_olympic)
-    return db_olympic
+    if search:
+        match search_field:
+            case "Место проведения":
+                if reverse == "По возрастанию":
+                    query = select(OlympicsOrm).filter(OlympicsOrm.location.like(f"{search}%")).order_by(
+                            OlympicsFieldsDict[sort_field])
+                else:
+                    query = select(OlympicsOrm).filter(OlympicsOrm.location.like(f"{search}%")).order_by(
+                        desc(OlympicsFieldsDict[sort_field]))
+            case "Сезон":
+                season = 'd'
+                if reverse == "По возрастанию":
+                    query = select(OlympicsOrm).filter(OlympicsOrm.season.like(f"{search}%")).order_by(
+                        OlympicsFieldsDict[sort_field])
+                else:
+                    query = select(OlympicsOrm).filter(OlympicsOrm.season.like(f"{search}%")).order_by(
+                        desc(OlympicsFieldsDict[sort_field]))
+    else:
+        if reverse == "По возрастанию":
+            query = select(OlympicsOrm).order_by(OlympicsFieldsDict[sort_field])
+        else:
+            query = select(OlympicsOrm).order_by(desc(OlympicsFieldsDict[sort_field]))
 
-def get_olympic_by_id(db: Session, id: int):
-    result = db.query(OlympicsOrm).filter(OlympicsOrm.id == id).all()
-    if len(result) < 1:
-        raise HTTPException(status_code=404, detail="The athlete with this ID does not exist!")
-    return OlympicModel.model_validate(result[0], from_attributes=True)
+    result = [OlympicModel.model_validate(row, from_attributes=True) for row in db.execute(query).scalars().all()]
 
-def get_all_olympics_list(db: Session, skip: int = SKIP, limit: int = LIMIT):
-    query = (select(OlympicsOrm).limit(LIMIT))
-    res = db.execute(query)
-    ans = [OlympicModel.model_validate(row, from_attributes=True) for row in res.scalars().all()]
-    return ans
-
-def update_olympic_by_id(db: Session, new_olympic: OlympicCreate):
-    if len(db.query(OlympicsOrm).filter(OlympicsOrm.id == new_olympic.id).all()) < 1:
-        raise HTTPException(status_code=404, detail="The country with the ID data does not exist!")
-
-    return db.query(OlympicsOrm).filter(OlympicsOrm.id == new_olympic.id).first()
-
-def delete_olympic_by_id(db: Session, id: int):
-    deleted = db.query(OlympicsOrm).filter(OlympicsOrm.id == id).first()
-    db.query(OlympicsOrm).filter(OlympicsOrm.id == id).delete()
-    db.commit()
-
-    return deleted
+    return result
