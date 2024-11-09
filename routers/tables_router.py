@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c
 from fastui.events import GoToEvent
-
 from statics.images import *
 
 router = APIRouter()
@@ -34,7 +33,6 @@ def show_tables() -> list[AnyComponent] :
                 c.Button(text="Олимпиады", on_click=GoToEvent(url="/olympics")),
                 c.Text(text="   "),
                 c.Image(src=olympics_url, height=100, width=130, on_click=GoToEvent(url="/olympics")),
-                c.Text(text="   "),
             ]
         )
     ]

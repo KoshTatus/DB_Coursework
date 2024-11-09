@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 
-from database import create_tables_orm
 from routers.tables_router import router as tables_router
 from routers.athlete_router import router as athlete_router
 from routers.country_router import router as country_router
@@ -12,8 +11,6 @@ from routers.medals_router import router as medal_router
 app = FastAPI(
     title="Olympics",
 )
-
-# create_tables_orm()
 
 app.include_router(athlete_router)
 app.include_router(country_router)
