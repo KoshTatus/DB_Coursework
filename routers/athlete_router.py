@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from cruds.athletesCRUD import get_athletes_list, create_athlete_to_country
 from orm.athletes_orm import AthletesOrm
 from schemas.athletes_schemas import AthleteCreate, AthleteModel, SortFormAthlete, AthleteCreateToCountry
-from database import get_db
+from database.database import get_db
 from cruds.generalCRUD import (
     get_all_objects,
     get_object_by_id,

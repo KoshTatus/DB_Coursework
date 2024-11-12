@@ -14,6 +14,7 @@ def get_medals_list(
 
     if search_field:
         if reverse == "По возрастанию":
+            print("!!!!!!!!!!!!!!")
             query = select(MedalsOrm).filter(MedalsOrm.medal_type == search_field).order_by(
                     MedalsFieldsDict[sort_field])
         else:

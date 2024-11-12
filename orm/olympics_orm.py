@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy.orm import Mapped
 
-from database import Base
+from database.database import Base
 from orm.orm import int_primary_key, string_255
 from schemas.schemas import SeasonType
 

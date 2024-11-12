@@ -7,7 +7,6 @@ url_sync = f"postgresql+psycopg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NA
 
 sync_engine = create_engine(
     url=url_sync,
-    echo=True
 )
 
 SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=sync_engine)

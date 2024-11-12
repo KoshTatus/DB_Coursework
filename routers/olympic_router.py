@@ -17,7 +17,7 @@ from cruds.generalCRUD import (
 from cruds.olympicsCRUD import get_olympics_list
 from orm.olympics_orm import OlympicsOrm
 from schemas.olympics_schemas import OlympicModel, OlympicCreate, OlympicDelete, SortFormOlympic
-from database import get_db
+from database.database import get_db
 from schemas.schemas import SeasonType
 
 router = APIRouter()
@@ -137,9 +137,9 @@ def update_olympic_page(id: int, db: Session = Depends(get_db)):
     res = get_object_by_id(db, id, OlympicModel, OlympicsOrm)
 
     class OlympicUpdate(BaseModel):
-        year: datetime.time = Field(title="Год", default=res.year)
+        year: datetime.date = Field(title="Год", default=res.year)
         location: str = Field(title="Место проведения", default=res.location)
-        season: SeasonType = Field(title="Сезон", default=res.season)
+        season: str = Field(title="Сезон", default=res.season)
 
     return [
         c.Page(

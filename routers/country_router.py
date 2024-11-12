@@ -8,9 +8,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from cruds.countriesCRUD import get_countries_list, get_eurasia_countries, get_athletes_count
 from orm.countries_orm import CountriesOrm
-from schemas.countries_schemas import CountryDelete, CountryCreate, CountryModel, CountriesFields, SortFormCountry, \
+from schemas.countries_schemas import CountryDelete, CountryCreate, CountryModel, SortFormCountry, \
     CountryAndCount
-from database import get_db
+from database.database import get_db
 from cruds.generalCRUD import (
     get_all_objects,
     get_object_by_id,

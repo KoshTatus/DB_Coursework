@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from database import Base
+from database.database import Base
 from orm.orm import int_primary_key
 from schemas.medals_schemas import MedalType
 

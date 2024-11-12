@@ -1,7 +1,7 @@
 from sqlalchemy import Index
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base
+from database.database import Base
 from orm.orm import string_255, int_primary_key
 
 

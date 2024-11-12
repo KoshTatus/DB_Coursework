@@ -7,11 +7,13 @@ from routers.events_router import router as event_router
 from routers.sports_router import router as sport_router
 from routers.olympic_router import router as olympic_router
 from routers.medals_router import router as medal_router
+from routers.reports_router import router as report_router
 
 app = FastAPI(
     title="Olympics",
 )
 
+app.include_router(report_router)
 app.include_router(athlete_router)
 app.include_router(country_router)
 app.include_router(event_router)

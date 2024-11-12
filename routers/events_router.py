@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from cruds.eventsCRUD import get_events_list
 from orm.events_orm import EventsOrm
 from schemas.events_schemas import EventModel, EventCreate, SortFormEvent, EventDelete
-from database import get_db
+from database.database import get_db
 from cruds.generalCRUD import (
     get_all_objects,
     get_object_by_id,
@@ -62,6 +62,7 @@ def sort_events(
                     columns=[
                         DisplayLookup(field='id', on_click=GoToEvent(url='/event/{id}/')),
                         DisplayLookup(field='event_name'),
+                        DisplayLookup(field='event_date'),
                         DisplayLookup(field='sport_id', on_click=GoToEvent(url='/sport/{sport_id}/')),
                         DisplayLookup(field='olympic_id', on_click=GoToEvent(url='/olympic/{olympic_id}/')),
                     ],
@@ -96,6 +97,7 @@ def events_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
                     columns=[
                         DisplayLookup(field='id', on_click=GoToEvent(url='/event/{id}/')),
                         DisplayLookup(field='event_name'),
+                        DisplayLookup(field='event_date'),
                         DisplayLookup(field='sport_id', on_click=GoToEvent(url='/sport/{sport_id}/')),
                         DisplayLookup(field='olympic_id', on_click=GoToEvent(url='/olympic/{olympic_id}/')),
                     ],
@@ -113,7 +115,7 @@ def event_profile(id: int, db: Session = Depends(get_db)) -> list[AnyComponent]:
         c.Page(
             components=[
                 c.Heading(text=event.event_name, level=2),
-                c.Button(text="Назад", on_click=BackEvent()),
+                c.Button(text="Назад", on_click=GoToEvent(url="/events")),
                 c.Details(data=event),
                 c.Button(text="Редактировать событие", on_click=GoToEvent(url=f"/event/{id}/update")),
                 c.Text(text="   "),

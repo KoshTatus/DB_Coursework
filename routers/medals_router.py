@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from cruds.medalsCRUD import get_medals_list
 from orm.medals_orm import MedalsOrm
 from schemas.medals_schemas import MedalCreate, MedalDelete, MedalModel, SortFormMedal
-from database import get_db
+from database.database import get_db
 from cruds.generalCRUD import (
     get_all_objects,
     get_object_by_id,
@@ -94,8 +94,11 @@ def medals_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
                     data_model=MedalModel,
                     columns=[
                         DisplayLookup(field='id', on_click=GoToEvent(url='/medal/{id}/')),
-                        DisplayLookup(field='medal_type'),
+                        DisplayLookup(field='event_id', on_click=GoToEvent(url='/event/{event_id}/')),
+                        DisplayLookup(field='athlete_id', on_click=GoToEvent(url='/athlete/{athlete_id}/')),
+                        DisplayLookup(field='medal_type')
                     ],
+                    no_data_message="Медали отсутствуют"
                 ),
                 c.Button(text="Добавить медаль", on_click=GoToEvent(url="/medal/add")),
             ]
