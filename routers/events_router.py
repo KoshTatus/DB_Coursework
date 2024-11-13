@@ -101,7 +101,7 @@ def events_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
                         DisplayLookup(field='sport_id', on_click=GoToEvent(url='/sport/{sport_id}/')),
                         DisplayLookup(field='olympic_id', on_click=GoToEvent(url='/olympic/{olympic_id}/')),
                     ],
-                    no_data_message="Нет событий"
+                    no_data_message="События отсутствуют"
                 ),
                 c.Button(text="Добавить событие", on_click=GoToEvent(url="/event/add")),
             ]

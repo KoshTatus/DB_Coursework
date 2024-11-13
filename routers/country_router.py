@@ -142,7 +142,7 @@ def countries_table(db: Session = Depends(get_db)) -> list[AnyComponent]:
                         DisplayLookup(field='country_name'),
                         DisplayLookup(field='continent'),
                     ],
-                    no_data_message="Нет стран"
+                    no_data_message="Страны отсутсвуют"
                 ),
                 c.Button(text="Добавить страну", on_click=GoToEvent(url="/country/add")),
             ]

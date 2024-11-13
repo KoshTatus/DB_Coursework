@@ -1,6 +1,5 @@
-from sqlalchemy import desc, select
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-from orm.events_orm import EventsOrm
 from schemas.events_schemas import EventModel, EventsFieldsDict
 
 
@@ -10,21 +9,22 @@ def get_events_list(
         reverse: str,
         search: str | None
 ):
-    query = select(EventsOrm)
+    query = """
+            SELECT * FROM events
+        """
 
     if search:
-        if reverse == "По возрастанию":
-            query = select(EventsOrm).filter(EventsOrm.event_name.like(f"{search}%")).order_by(
-                    EventsFieldsDict[sort_field])
-        else:
-            query = select(EventsOrm).filter(EventsOrm.event_name.like(f"{search}%")).order_by(
-                    desc(EventsFieldsDict[sort_field]))
-    else:
-        if reverse == "По возрастанию":
-            query = select(EventsOrm).order_by(EventsFieldsDict[sort_field])
-        else:
-            query = select(EventsOrm).order_by(desc(EventsFieldsDict[sort_field]))
+        query += f"""
+                WHERE {EventsFieldsDict['Название']} LIKE '{search}%'
+            """
 
-    result = [EventModel.model_validate(row, from_attributes=True) for row in db.execute(query).scalars().all()]
+    query += f"""
+            ORDER BY {EventsFieldsDict[sort_field]}
+        """
+
+    if reverse == "По убыванию":
+        query += """ DESC"""
+
+    result = [EventModel.model_validate(row, from_attributes=True) for row in db.execute(text(query)).all()]
 
     return result

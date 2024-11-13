@@ -62,9 +62,9 @@ third_rep_dict = {
 }
 
 third_rep_medals_dict = {
-    "G" : "золотых",
-    "S" : "серебряных",
-    "B" : "бронзовых"
+    "gold" : "золотых",
+    "silver" : "серебряных",
+    "bronze" : "бронзовых"
 }
 
 class ThirdReportFields(BaseModel):

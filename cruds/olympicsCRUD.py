@@ -1,6 +1,5 @@
-from sqlalchemy import select, desc
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-from orm.olympics_orm import OlympicsOrm
 from schemas.olympics_schemas import OlympicsFieldsDict, OlympicModel
 
 
@@ -11,31 +10,27 @@ def get_olympics_list(
         search_field: str | None,
         search: str | None
 ):
-    query = select(OlympicsOrm)
+    query = """
+            SELECT * FROM olympics
+        """
 
     if search:
-        match search_field:
-            case "Место проведения":
-                if reverse == "По возрастанию":
-                    query = select(OlympicsOrm).filter(OlympicsOrm.location.like(f"{search}%")).order_by(
-                            OlympicsFieldsDict[sort_field])
-                else:
-                    query = select(OlympicsOrm).filter(OlympicsOrm.location.like(f"{search}%")).order_by(
-                        desc(OlympicsFieldsDict[sort_field]))
-            case "Сезон":
-                season = 'd'
-                if reverse == "По возрастанию":
-                    query = select(OlympicsOrm).filter(OlympicsOrm.season.like(f"{search}%")).order_by(
-                        OlympicsFieldsDict[sort_field])
-                else:
-                    query = select(OlympicsOrm).filter(OlympicsOrm.season.like(f"{search}%")).order_by(
-                        desc(OlympicsFieldsDict[sort_field]))
-    else:
-        if reverse == "По возрастанию":
-            query = select(OlympicsOrm).order_by(OlympicsFieldsDict[sort_field])
-        else:
-            query = select(OlympicsOrm).order_by(desc(OlympicsFieldsDict[sort_field]))
+        if search_field == "Сезон" and search in ["winter", "summer"]:
+            query += f"""
+                    WHERE {OlympicsFieldsDict[search_field]} = '{search}'
+                """
+        elif search_field != "Сезон":
+            query += f"""
+                    WHERE {OlympicsFieldsDict[search_field]} LIKE '{search}%'
+                """
 
-    result = [OlympicModel.model_validate(row, from_attributes=True) for row in db.execute(query).scalars().all()]
+    query += f"""
+            ORDER BY {OlympicsFieldsDict[sort_field]}
+        """
+
+    if reverse == "По убыванию":
+        query += """ DESC"""
+
+    result = [OlympicModel.model_validate(row, from_attributes=True) for row in db.execute(text(query)).all()]
 
     return result

@@ -1,4 +1,4 @@
-from sqlalchemy import desc, select
+from sqlalchemy import desc, select, text
 from sqlalchemy.orm import Session
 from orm.athletes_orm import AthletesOrm
 from schemas.athletes_schemas import AthleteModel, AthletesFieldsDict, AthleteCreateToCountry
@@ -12,46 +12,23 @@ def get_athletes_list(
         search_field: str,
         search: str | None
 ):
-    query = select(AthletesOrm)
+    query = """
+        SELECT * FROM athletes
+    """
 
     if search:
-        match search_field:
-            case "Имя":
-                if reverse == "По возрастанию":
-                    query = select(AthletesOrm).filter(AthletesOrm.first_name.like(f"{search}%")).order_by(
-                        AthletesFieldsDict[sort_field])
-                else:
-                    query = select(AthletesOrm).filter(AthletesOrm.first_name.like(f"{search}%")).order_by(
-                        desc(AthletesFieldsDict[sort_field]))
-            case "Фамилия":
-                if reverse == "По возрастанию":
-                    query = select(AthletesOrm).filter(AthletesOrm.last_name.like(f"{search}%")).order_by(
-                        AthletesFieldsDict[sort_field])
-                else:
-                    query = select(AthletesOrm).filter(AthletesOrm.last_name.like(f"{search}%")).order_by(
-                        desc(AthletesFieldsDict[sort_field]))
-            case "Пол":
-                gndr = "No"
-                if search == "M":
-                    gndr = GenderType.M
-                elif search == "F":
-                    gndr = GenderType.F
-                if gndr != "No":
-                    if reverse == "По возрастанию":
-                        query = select(AthletesOrm).filter(AthletesOrm.gender == gndr).order_by(
-                            AthletesFieldsDict[sort_field])
-                    else:
-                        query = select(AthletesOrm).filter(AthletesOrm.gender == gndr).order_by(
-                            desc(AthletesFieldsDict[sort_field]))
-                else:
-                    return []
-    else:
-        if reverse == "По возрастанию":
-            query = select(AthletesOrm).order_by(AthletesFieldsDict[sort_field])
-        else:
-            query = select(AthletesOrm).order_by(desc(AthletesFieldsDict[sort_field]))
+        query += f"""
+            WHERE {AthletesFieldsDict[search_field]} LIKE '{search}%'
+        """
 
-    result = [AthleteModel.model_validate(row, from_attributes=True) for row in db.execute(query).scalars().all()]
+    query += f"""
+        ORDER BY {AthletesFieldsDict[sort_field]}
+    """
+
+    if reverse == "По убыванию":
+        query += """ DESC"""
+
+    result = [AthleteModel.model_validate(row, from_attributes=True) for row in db.execute(text(query)).all()]
 
     return result
 

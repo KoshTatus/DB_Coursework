@@ -1,31 +1,30 @@
-from sqlalchemy import desc, select
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-from orm.medals_orm import MedalsOrm
-from schemas.medals_schemas import MedalModel, MedalsFieldsDict
+from schemas.medals_schemas import MedalModel, MedalsFieldsDict, MedalType
 
 
 def get_medals_list(
         db: Session,
         sort_field: str,
         reverse: str,
-        search_field: str | None
+        search_field: MedalType | None
 ):
-    query = select(MedalsOrm)
+    query = """
+            SELECT * FROM medals
+        """
 
     if search_field:
-        if reverse == "По возрастанию":
-            print("!!!!!!!!!!!!!!")
-            query = select(MedalsOrm).filter(MedalsOrm.medal_type == search_field).order_by(
-                    MedalsFieldsDict[sort_field])
-        else:
-            query = select(MedalsOrm).filter(MedalsOrm.medal_type == search_field).order_by(
-                    desc(MedalsFieldsDict[sort_field]))
-    else:
-        if reverse == "По возрастанию":
-            query = select(MedalsOrm).order_by(MedalsFieldsDict[sort_field])
-        else:
-            query = select(MedalsOrm).order_by(desc(MedalsFieldsDict[sort_field]))
+        query += f"""
+                WHERE medals.medal_type = '{search_field.value}'
+            """
 
-    result = [MedalModel.model_validate(row, from_attributes=True) for row in db.execute(query).scalars().all()]
+    query += f"""
+            ORDER BY {MedalsFieldsDict[sort_field]}
+        """
+
+    if reverse == "По убыванию":
+        query += """ DESC"""
+
+    result = [MedalModel.model_validate(row, from_attributes=True) for row in db.execute(text(query)).all()]
 
     return result

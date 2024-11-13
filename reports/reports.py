@@ -97,7 +97,7 @@ def third_report(
 
     if form.medal_type:
         query += f"""
-                WHERE medals.medal_type = {form.medal_type}'
+                WHERE medals.medal_type = '{form.medal_type.value}'
             """
 
     query += f"""
@@ -111,7 +111,7 @@ def third_report(
     result = [ThirdReportModel.model_validate(row, from_attributes=True) for row in db.execute(text(query)).all()]
 
     report_file = open("C:/Users/Егор/Desktop/Курсовая_БД/reports/report_files/report_3.txt", "w")
-    report_file.write(f"Количество {third_rep_medals_dict[form.medal_type] if form.medal_type else ''} "
+    report_file.write(f"Количество {third_rep_medals_dict[form.medal_type.value] if form.medal_type else ''} "
                       f"медалей каждого атлета\n\n")
 
     for row in result:

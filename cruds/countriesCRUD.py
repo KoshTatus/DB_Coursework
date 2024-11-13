@@ -1,6 +1,5 @@
-from sqlalchemy import select, desc, text
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-from orm.countries_orm import CountriesOrm
 from schemas.countries_schemas import CountryModel, CountriesFieldsDict, CountryAndCount
 
 
@@ -11,31 +10,23 @@ def get_countries_list(
         search_field: str,
         search: str | None
 ):
-    query = select(CountriesOrm)
+    query = """
+            SELECT * FROM countries
+        """
 
     if search:
-        match search_field:
-            case "Название":
-                if reverse == "По возрастанию":
-                    query = select(CountriesOrm).filter(CountriesOrm.country_name.like(f"{search}%")).order_by(
-                        CountriesFieldsDict[sort_field])
-                else:
-                    query = select(CountriesOrm).filter(CountriesOrm.continent.like(f"{search}%")).order_by(
-                        desc(CountriesFieldsDict[sort_field]))
-            case "Континент":
-                if reverse == "По возрастанию":
-                    query = select(CountriesOrm).filter(CountriesOrm.country_name.like(f"{search}%")).order_by(
-                        CountriesFieldsDict[sort_field])
-                else:
-                    query = select(CountriesOrm).filter(CountriesOrm.continent.like(f"{search}%")).order_by(
-                        desc(CountriesFieldsDict[sort_field]))
-    else:
-        if reverse == "По возрастанию":
-            query = select(CountriesOrm).order_by(CountriesFieldsDict[sort_field])
-        else:
-            query = select(CountriesOrm).order_by(desc(CountriesFieldsDict[sort_field]))
+        query += f"""
+                WHERE {CountriesFieldsDict[search_field]} LIKE '{search}%'
+            """
 
-    result = [CountryModel.model_validate(row, from_attributes=True) for row in db.execute(query).scalars().all()]
+    query += f"""
+            ORDER BY {CountriesFieldsDict[sort_field]}
+        """
+
+    if reverse == "По убыванию":
+        query += """ DESC"""
+
+    result = [CountryModel.model_validate(row, from_attributes=True) for row in db.execute(text(query)).all()]
 
     return result
 
